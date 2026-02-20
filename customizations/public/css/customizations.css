@@ -1,0 +1,7 @@
+.qualified-row {
+    background-color: #fff3cd;
+}
+
+.list-row.qualified-row .list-row-container {
+    background-color: #fff3cd !important;
+}

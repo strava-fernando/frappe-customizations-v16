@@ -1,0 +1,29 @@
+{
+ "app": "customizations",
+ "creation": "2026-02-14 10:14:10.838406",
+ "docstatus": 0,
+ "doctype": "Workspace Sidebar",
+ "for_user": "",
+ "header_icon": "a-arrow-up",
+ "idx": 0,
+ "items": [
+  {
+   "child": 0,
+   "collapsible": 1,
+   "indent": 0,
+   "keep_closed": 0,
+   "label": "Custom CRM",
+   "link_to": "Frappe CRM",
+   "link_type": "Workspace",
+   "show_arrow": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-02-14 10:52:46.928446",
+ "modified_by": "Administrator",
+ "module": "FCRM",
+ "name": "Sample",
+ "owner": "Administrator",
+ "standard": 1,
+ "title": "Sample"
+}

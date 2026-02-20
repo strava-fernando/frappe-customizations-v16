@@ -4,6 +4,17 @@ app_publisher = "Strava"
 app_description = "Just a demo app"
 app_email = "stravakske@calcey.com"
 app_license = "mit"
+module_name = "Customizations"
+
+fixtures = [
+	{"dt": "Custom Field", "filters": [["module", "=", module_name]]},
+	{"dt": "Property Setter", "filters": [["module", "=", module_name]]},
+
+]
+
+additional_timeline_content = {
+	"CRM Lead": "customizations.timeline.crm_lead.get_task_timeline"
+}
 
 # Apps
 # ------------------
@@ -25,7 +36,7 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/customizations/css/customizations.css"
+app_include_css = "/assets/customizations/css/customizations.css"
 # app_include_js = "/assets/customizations/js/customizations.js"
 
 # include js, css files in header of web template
@@ -43,8 +54,13 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
-# doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
+doctype_js = { # For form view
+    "CRM Lead": "public/js/crm_lead_custom.js"
+}
+doctype_list_js = { # For list view
+    "CRM Lead": "public/js/crm_lead_list.js"
+}
+
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
 
@@ -187,7 +203,6 @@ app_license = "mit"
 # override_doctype_dashboards = {
 # 	"Task": "customizations.task.get_dashboard_data"
 # }
-
 # exempt linked doctypes from being automatically cancelled
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
