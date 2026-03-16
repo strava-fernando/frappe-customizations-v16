@@ -1,91 +1,97 @@
-// Render button conditionally based on related CRM Tasks count
-frappe.ui.form.on("CRM Lead", {
-    onload(frm) {
-		load_tasks(frm);
-    },
-	refresh(frm) {
-		load_tasks(frm);
-    }
-});
-
-function load_tasks(frm) {
-		// Only run if the button hasn't been added yet
-		// Custom buttons
-		frm.add_custom_button('Approve', () => {
-			frappe.msgprint(__("Successfully sent!"));
-		}).addClass('btn-primary');
-		frm.add_custom_button('Reject', () => {
-			frappe.msgprint(__("Successfully sent!"));
-		})
-
-		frm.add_custom_button(__("Approve"), function () {
-
-			frappe.call({
-				method: "customizations.api.crm_lead.send_to_external_system",
-				args: {
-					lead_name: frm.doc.name
-				},
-				freeze: true,
-				freeze_message: __("Processing..."),
-				callback: function(r) {
-					if (!r.exc) {
-						frappe.msgprint(__("Successfully sent!"));
-					}
-				}
-			});
-
-		}, __("DO something"));
-
-        if (!frm.custom_button_added) {
-
-            // Get count of CRM Tasks related to this lead
-            frappe.call({
-                method: "frappe.client.get_count",
-                args: {
-                    doctype: "CRM Task",
-                    filters: {
-                        reference_doctype: "CRM Lead",
-                        reference_docname: frm.doc.name
-                    }
-                },
-                callback: function(r) {
-                    let task_count = r.message || 0;
-
-                    // Only add button if there's at least one task
-                    if (task_count > 0) {
-                        frm.add_custom_button(__("Approve"), function () {
-
-                            frappe.call({
-                                method: "customizations.api.crm_lead.send_to_external_system",
-                                args: {
-                                    lead_name: frm.doc.name
-                                },
-                                freeze: true,
-                                freeze_message: __("Processing..."),
-                                callback: function(r) {
-                                    if (!r.exc) {
-                                        frappe.msgprint(__("Successfully sent!"));
-                                    }
-                                }
-                            });
-
-                        }, __("Actions"));
-                    }
-                }
-            });
-
-            frm.custom_button_added = true;
-        }
-}
+// // Render button conditionally based on related CRM Tasks count
+// frappe.ui.form.on("CRM Lead", {
+//     onload(frm) {
+// 		load_tasks(frm);
+//     },
+// 	refresh(frm) {
+// 		load_tasks(frm);
+//     }
+// });
+//
+// function load_tasks(frm) {
+// 		// Only run if the button hasn't been added yet
+// 		// Custom buttons
+// 		frm.add_custom_button('Approve', () => {
+// 			frappe.msgprint(__("Successfully sent!"));
+// 		}).addClass('btn-primary');
+// 		frm.add_custom_button('Reject', () => {
+// 			frappe.msgprint(__("Successfully sent!"));
+// 		})
+//
+// 		frm.add_custom_button(__("Approve"), function () {
+//
+// 			frappe.call({
+// 				method: "customizations.api.crm_lead.send_to_external_system",
+// 				args: {
+// 					lead_name: frm.doc.name
+// 				},
+// 				freeze: true,
+// 				freeze_message: __("Processing..."),
+// 				callback: function(r) {
+// 					if (!r.exc) {
+// 						frappe.msgprint(__("Successfully sent!"));
+// 					}
+// 				}
+// 			});
+//
+// 		}, __("DO something"));
+//
+//         if (!frm.custom_button_added) {
+//
+//             // Get count of CRM Tasks related to this lead
+//             frappe.call({
+//                 method: "frappe.client.get_count",
+//                 args: {
+//                     doctype: "CRM Task",
+//                     filters: {
+//                         reference_doctype: "CRM Lead",
+//                         reference_docname: frm.doc.name
+//                     }
+//                 },
+//                 callback: function(r) {
+//                     let task_count = r.message || 0;
+//
+//                     // Only add button if there's at least one task
+//                     if (task_count > 0) {
+//                         frm.add_custom_button(__("Approve"), function () {
+//
+//                             frappe.call({
+//                                 method: "customizations.api.crm_lead.send_to_external_system",
+//                                 args: {
+//                                     lead_name: frm.doc.name
+//                                 },
+//                                 freeze: true,
+//                                 freeze_message: __("Processing..."),
+//                                 callback: function(r) {
+//                                     if (!r.exc) {
+//                                         frappe.msgprint(__("Successfully sent!"));
+//                                     }
+//                                 }
+//                             });
+//
+//                         }, __("Actions"));
+//                     }
+//                 }
+//             });
+//
+//             frm.custom_button_added = true;
+//         }
+// }
 
 
 frappe.ui.form.on("CRM Lead", {
   refresh(frm) {
     load_crm_tasks(frm);
+	load_custom_vue(frm);
   }
 });
 
 function load_crm_tasks(frm) {
+	if (frappe.model.can_write('CRM Lead')) {
+		frm.add_custom_button('Approve', () => {
+			frappe.msgprint(__("Successfully sent!"));
+		});
+	}
 
   frappe.call({
     method: "frappe.client.get_list",
@@ -208,3 +214,20 @@ frappe.ui.form.on("CRM Lead", {
         }
     }
 });
+
+function load_custom_vue(frm) {
+	const $wrapper = frm.fields_dict.custom_html.$wrapper;
+
+	// Clear any previous mount and create a fresh container
+	$wrapper.empty();
+	$wrapper.append('<div id="crm-task-vue-root"></div>');
+	$wrapper.append('<div id="crm-task-vue-data-table"></div>');
+
+	// Require the bundle then mount the Vue Table component
+	frappe.require('table.bundle.js', function() {
+		frappe.ui.setup_vue($wrapper.find('#crm-task-vue-root'));
+	});
+	frappe.require(['frappe-data-table.bundle.js'], function() {
+		frappe.ui.setup_frappe_data_table($wrapper.find('#crm-task-vue-data-table'));
+	});
+}
